@@ -17,8 +17,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+Route::get('/wall', 'App\Http\Controllers\MessageController@index')->middleware(['auth'])->name('wall');
+Route::resource('message', MessageController::class)->middleware(['auth']);
 
 require __DIR__.'/auth.php';
