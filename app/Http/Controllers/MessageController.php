@@ -25,7 +25,7 @@ class MessageController extends Controller
      */
     public function create()
     {
-        //
+        return view('wall.new-message');
     }
 
     /**
@@ -81,6 +81,11 @@ class MessageController extends Controller
      */
     public function destroy(Message $message)
     {
-        //
+        if(date_diff(new \DateTime(), $message->created_at)->days <= 0)
+        {
+            $message->delete();
+            return redirect()->route('wall');
+        }
+        return redirect()->route('wall');
     }
 }
