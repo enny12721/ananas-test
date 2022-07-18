@@ -45,6 +45,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('message.create')}}">Создать сообщение</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('user.messages')}}">Сообщения</a>
+                            </li>
                         @endauth
                     </ul>
 

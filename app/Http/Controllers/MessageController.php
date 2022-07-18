@@ -88,4 +88,10 @@ class MessageController extends Controller
         }
         return redirect()->route('wall');
     }
+
+    public function UserMessages()
+    {
+        $messages = Message::where('user_id', auth()->user()->id)->orderByDesc('created_at')->paginate(20);
+        return view('wall.index', compact('messages'));
+    }
 }
