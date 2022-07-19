@@ -36,7 +36,8 @@ class MessageController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Message::create(['text' => $request->get('text'), 'user_id' => auth()->user()->id]);
+        return redirect()->route('wall');
     }
 
     /**

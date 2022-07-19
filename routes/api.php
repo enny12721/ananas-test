@@ -22,6 +22,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::prefix('v1')->group(function() {
     Route::post('auth/register', [AuthController::class, 'store']);
     Route::get('auth/login', [AuthController::class, 'login']);
-    Route::apiResource('messages', WallController::class);
+    Route::middleware('auth:sanctum')->group(function() {
+        Route::apiResource('messages', WallController::class);
+    });
 });
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 
 class WallController extends Controller
@@ -17,11 +18,6 @@ class WallController extends Controller
      */
     public function index(Request $request)
     {
-        $user = $request->user();
-        if(!$user) {
-            return response(['error' => 'Unauthorized user'], Response::HTTP_UNAUTHORIZED);
-        }
-
         return Message::orderByDesc('created_at')->paginate(20);
     }
 
@@ -43,12 +39,26 @@ class WallController extends Controller
      */
     public function store(Request $request)
     {
-        $user = auth()->user();
-        if(!$user) {
-            return response(['error' => 'Пользователь не авторизован'], Response::HTTP_UNAUTHORIZED);
-        }
+        try {
+            $user = Auth::user();
 
-        Message::create(['text' => $request->get('text'), 'user_id' => auth()->user()->id]);
+            if(!$user){
+                return response()->json([
+                    'message' => 'Пользователь неавторизован'
+                ], 401);
+            }
+
+            $message = Message::create(['text' => $request->get('text'), 'user_id' => $user->id]);
+
+            return response()->json([
+                'message' => 'Сообщение успешно сохранено',
+                'user_message' => $message
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Произошла ошибка'
+            ]);
+        }
     }
 
     /**
@@ -93,6 +103,40 @@ class WallController extends Controller
      */
     public function destroy(Message $message)
     {
-        //
+        try {
+
+            $user = Auth::user();
+
+            if(!$user){
+                return response()->json([
+                    'message' => 'Пользователь неавторизован'
+                ], 401);
+            }
+
+            if($message->user_id != $user->id) {
+                return response()->json([
+                    'message' => 'Данное сообщение не принадлежит пользователю'
+                ], 400);
+            }
+
+            if(date_diff(new \DateTime(), $message->created_at)->days <= 0)
+            {
+                $message->delete();
+
+                return response()->json([
+                    'message' => 'Сообщение успешно удалено'
+                ], 200);
+
+            } else {
+                return response()->json([
+                    'message' => 'Прошло 24 часа после создания сообщения'
+                ], 400);
+            }
+
+        } catch( \Throwable $th) {
+            return response()->json([
+                'message' => 'Произошла ошибка'
+            ]);
+        }
     }
 }
